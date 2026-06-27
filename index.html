@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KES Analytics Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#2563eb;--primary-dark:#1e40af;--primary-bg:#eff6ff;--bg:#f1f5f9;--card:#fff;--text:#0f172a;--text-muted:#64748b;--border:#e2e8f0;--success:#059669;--danger:#dc2626;--warning:#d97706;--purple:#7c3aed;--teal:#0891b2;--radius:14px;--radius-sm:10px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+#loginScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1e3a8a,#2563eb)}
+.login-box{background:#fff;border-radius:20px;padding:40px 32px;width:100%;max-width:360px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.login-box h1{font-size:1.5rem;font-weight:800;margin:12px 0 4px}
+.login-box p{color:var(--text-muted);font-size:.85rem;margin-bottom:24px}
+.login-box input{width:100%;padding:12px 16px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.95rem;font-family:inherit;margin-bottom:12px;text-align:center;letter-spacing:4px}
+.login-box input:focus{outline:none;border-color:var(--primary)}
+.login-btn{width:100%;padding:13px;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);font-size:.95rem;font-weight:700;cursor:pointer;font-family:inherit}
+.login-btn:hover{background:var(--primary-dark)}
+.login-error{color:var(--danger);font-size:.8rem;margin-top:8px;display:none}
+#dashboard{display:none}
+.top-bar{background:#fff;border-bottom:1px solid var(--border);padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.top-bar-brand{font-weight:800;font-size:1rem;display:flex;align-items:center;gap:8px}
+.top-bar-right{display:flex;align-items:center;gap:10px}
+.live-badge{background:var(--danger);color:#fff;font-size:.7rem;font-weight:700;padding:4px 10px;border-radius:99px;display:flex;align-items:center;gap:5px}
+.live-dot{width:6px;height:6px;background:#fff;border-radius:50%;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.refresh-btn{padding:7px 14px;background:var(--primary-bg);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.8rem;font-weight:600;cursor:pointer;font-family:inherit;color:var(--primary)}
+.refresh-btn:hover{background:var(--primary);color:#fff}
+.logout-btn{padding:7px 14px;background:#fee2e2;border:1px solid #fecaca;border-radius:var(--radius-sm);font-size:.8rem;font-weight:600;cursor:pointer;font-family:inherit;color:var(--danger)}
+.container{max-width:1100px;margin:0 auto;padding:24px 16px}
+.filter-bar{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
+.filter-btn{padding:8px 16px;border-radius:99px;border:1px solid var(--border);background:#fff;font-size:.8rem;font-weight:600;cursor:pointer;font-family:inherit;color:var(--text-muted)}
+.filter-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.filter-label{font-size:.8rem;color:var(--text-muted);font-weight:600}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:18px 16px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.stat-card.blue::before{background:var(--primary)}
+.stat-card.green::before{background:var(--success)}
+.stat-card.orange::before{background:var(--warning)}
+.stat-card.purple::before{background:var(--purple)}
+.stat-card.red::before{background:var(--danger)}
+.stat-card.teal::before{background:var(--teal)}
+.stat-icon{font-size:1.5rem;margin-bottom:8px}
+.stat-value{font-size:1.8rem;font-weight:800;line-height:1;margin-bottom:4px}
+.stat-label{font-size:.75rem;color:var(--text-muted);font-weight:600}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+.panel{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.panel-title{font-size:.9rem;font-weight:700;margin-bottom:16px}
+.bar-item{margin-bottom:12px}
+.bar-label{display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:4px}
+.bar-label span:first-child{font-weight:500;max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-label span:last-child{font-weight:700;color:var(--text-muted)}
+.bar-track{background:var(--bg);border-radius:99px;height:8px;overflow:hidden}
+.bar-fill{height:100%;border-radius:99px;transition:width .6s ease}
+.bar-fill.blue{background:var(--primary)}
+.bar-fill.green{background:var(--success)}
+.bar-fill.orange{background:var(--warning)}
+.bar-fill.purple{background:var(--purple)}
+.bar-fill.red{background:var(--danger)}
+.bar-fill.teal{background:var(--teal)}
+.section-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:.82rem}
+.section-item:last-child{border-bottom:none}
+.section-name{flex:1;font-weight:500}
+.section-time{font-size:.75rem;color:var(--text-muted);width:50px;text-align:right}
+.section-bar{width:80px;height:6px;background:var(--bg);border-radius:99px;overflow:hidden}
+.section-bar-fill{height:100%;background:var(--primary);border-radius:99px}
+.data-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.data-table th{text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:600;font-size:.75rem;text-transform:uppercase;border-bottom:1px solid var(--border)}
+.data-table td{padding:10px;border-bottom:1px solid var(--border)}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:var(--bg)}
+.hour-chart{display:flex;align-items:flex-end;gap:3px;height:80px}
+.hour-bar{flex:1;background:var(--primary-bg);border-radius:3px 3px 0 0;min-height:4px;position:relative;cursor:pointer}
+.hour-bar:hover{background:var(--primary)}
+.hour-bar .tip{display:none;position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:var(--text);color:#fff;font-size:.65rem;padding:3px 6px;border-radius:4px;white-space:nowrap;margin-bottom:4px;z-index:10}
+.hour-bar:hover .tip{display:block}
+.hour-labels{display:flex;justify-content:space-between;font-size:.65rem;color:var(--text-muted);margin-top:4px}
+.big-split{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.big-num-box{text-align:center;padding:16px;background:var(--bg);border-radius:var(--radius-sm)}
+.big-num{font-size:2rem;font-weight:800}
+.big-num.blue{color:var(--primary)}
+.big-num.green{color:var(--success)}
+.big-num.orange{color:var(--warning)}
+.big-num.purple{color:var(--purple)}
+.big-sub{font-size:.75rem;color:var(--text-muted);font-weight:600;margin-top:4px}
+.loading{text-align:center;padding:30px;color:var(--text-muted);font-size:.85rem}
+.empty{text-align:center;padding:20px;color:var(--text-muted);font-size:.82rem}
+.error-banner{background:#fee2e2;border:1px solid #fecaca;color:var(--danger);padding:12px 16px;border-radius:var(--radius-sm);margin-bottom:16px;font-size:.85rem;font-weight:600;display:none}
+@media(max-width:768px){.stats-grid{grid-template-columns:repeat(2,1fr)}.grid-2,.grid-3{grid-template-columns:1fr}.stat-value{font-size:1.4rem}}
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="login-box">
+    <div style="font-size:2.5rem">📊</div>
+    <h1>KES Analytics</h1>
+    <p>Admin only — enter password</p>
+    <input type="password" id="passInput" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">🔐 Login</button>
+    <div class="login-error" id="loginError">Wrong password!</div>
+  </div>
+</div>
+
+<div id="dashboard">
+  <div class="top-bar">
+    <div class="top-bar-brand">📊 KES Analytics Dashboard</div>
+    <div class="top-bar-right">
+      <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+      <button class="refresh-btn" onclick="loadData()">🔄 Refresh</button>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="error-banner" id="errorBanner"></div>
+
+    <div class="filter-bar">
+      <span class="filter-label">Show:</span>
+      <button class="filter-btn active" onclick="setFilter('today',this)">Today</button>
+      <button class="filter-btn" onclick="setFilter('week',this)">This Week</button>
+      <button class="filter-btn" onclick="setFilter('month',this)">This Month</button>
+      <button class="filter-btn" onclick="setFilter('all',this)">All Time</button>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card blue"><div class="stat-icon">👥</div><div class="stat-value" id="s-visits">—</div><div class="stat-label">Total Visits</div></div>
+      <div class="stat-card green"><div class="stat-icon">⏱️</div><div class="stat-value" id="s-avgtime">—</div><div class="stat-label">Avg Active Time</div></div>
+      <div class="stat-card orange"><div class="stat-icon">📜</div><div class="stat-value" id="s-scroll">—</div><div class="stat-label">Avg Scroll Depth</div></div>
+      <div class="stat-card purple"><div class="stat-icon">🔄</div><div class="stat-value" id="s-returning">—</div><div class="stat-label">Return Visitors</div></div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card teal"><div class="stat-icon">📱</div><div class="stat-value" id="s-mobile">—</div><div class="stat-label">Mobile Users</div></div>
+      <div class="stat-card red"><div class="stat-icon">🖱️</div><div class="stat-value" id="s-clicks">—</div><div class="stat-label">Total Clicks</div></div>
+      <div class="stat-card green"><div class="stat-icon">👁️</div><div class="stat-value" id="s-sections">—</div><div class="stat-label">Sections Explored</div></div>
+      <div class="stat-card orange"><div class="stat-icon">🔍</div><div class="stat-value" id="s-searches">—</div><div class="stat-label">Total Searches</div></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel"><div class="panel-title">🖱️ Most Clicked Buttons & Links</div><div id="clicks-chart"><div class="loading">Loading...</div></div></div>
+      <div class="panel"><div class="panel-title">👁️ Most Viewed Sections</div><div id="sections-chart"><div class="loading">Loading...</div></div></div>
+    </div>
+
+    <div class="grid-3">
+      <div class="panel"><div class="panel-title">📱 Device Type</div><div id="device-chart"><div class="loading">Loading...</div></div></div>
+      <div class="panel"><div class="panel-title">🌐 Browser</div><div id="browser-chart"><div class="loading">Loading...</div></div></div>
+      <div class="panel"><div class="panel-title">📶 Network Speed</div><div id="network-chart"><div class="loading">Loading...</div></div></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel"><div class="panel-title">⏰ Visits by Hour of Day</div><div id="hour-chart-wrap"><div class="loading">Loading...</div></div></div>
+      <div class="panel"><div class="panel-title">🔍 Top Search Queries</div><div id="search-chart"><div class="loading">Loading...</div></div></div>
+    </div>
+
+    <div class="grid-3">
+      <div class="panel"><div class="panel-title">💻 Operating System</div><div id="os-chart"><div class="loading">Loading...</div></div></div>
+      <div class="panel"><div class="panel-title">🌙 Theme Preference</div><div id="theme-chart"><div class="loading">Loading...</div></div></div>
+      <div class="panel"><div class="panel-title">📺 Screen Sizes</div><div id="screen-chart"><div class="loading">Loading...</div></div></div>
+    </div>
+
+    <div class="grid-3">
+      <div class="panel"><div class="panel-title">📄 Pages Visited</div><div id="page-chart"><div class="loading">Loading...</div></div></div>
+      <div class="panel"><div class="panel-title">🔗 Traffic Source</div><div id="referrer-chart"><div class="loading">Loading...</div></div></div>
+      <div class="panel"><div class="panel-title">🗣️ Language</div><div id="lang-chart"><div class="loading">Loading...</div></div></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel"><div class="panel-title">🆕 New vs Returning Visitors</div><div id="newret-chart"><div class="loading">Loading...</div></div></div>
+      <div class="panel"><div class="panel-title">⚡ Active vs Total Time (avg)</div><div id="activetime-chart"><div class="loading">Loading...</div></div></div>
+    </div>
+
+    <div class="panel" style="margin-bottom:24px">
+      <div class="panel-title">📋 Recent Visits (Last 20)</div>
+      <div id="recent-table"><div class="loading">Loading...</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL='https://jbyctjddlbyddzavmczg.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpieWN0amRkbGJ5ZGR6YXZtY3pnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzNzE2NzYsImV4cCI6MjA5Nzk0NzY3Nn0.klEa0-zSGbHZYA-fYiHYg4ceoL1PQ87gowGEbvVmhqU';
+const PASS='8291692332';
+let filter='today';
+let allData=[];
+
+function doLogin(){
+  if(document.getElementById('passInput').value===PASS){
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('dashboard').style.display='block';
+    loadData();
+    setInterval(loadData,60000);
+  } else {
+    document.getElementById('loginError').style.display='block';
+    document.getElementById('passInput').value='';
+  }
+}
+
+function logout(){
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('dashboard').style.display='none';
+  document.getElementById('passInput').value='';
+  document.getElementById('loginError').style.display='none';
+}
+
+function setFilter(f,btn){
+  filter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAll();
+}
+
+function getFrom(){
+  const now=new Date();
+  if(filter==='today'){const d=new Date(now);d.setHours(0,0,0,0);return d;}
+  if(filter==='week'){const d=new Date(now);d.setDate(d.getDate()-7);return d;}
+  if(filter==='month'){const d=new Date(now);d.setDate(d.getDate()-30);return d;}
+  return new Date('2000-01-01');
+}
+
+function getFiltered(){
+  if(!Array.isArray(allData)) return [];
+  const from=getFrom();
+  return allData.filter(r=>new Date(r.timestamp)>=from);
+}
+
+async function loadData(){
+  const banner=document.getElementById('errorBanner');
+  try {
+    const r=await fetch(`${SUPABASE_URL}/rest/v1/analytics?order=timestamp.desc&limit=2000`,{
+      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}
+    });
+    const json=await r.json();
+    allData=Array.isArray(json)?json:[];
+    banner.style.display='none';
+    renderAll();
+  } catch(e){
+    banner.textContent='Could not load data: '+e.message;
+    banner.style.display='block';
+  }
+}
+
+function renderAll(){
+  const data=getFiltered();
+  const total=data.length;
+
+  const avgActive=total?(data.reduce((s,r)=>s+(r.active_time_seconds||0),0)/total/60).toFixed(1):0;
+  const avgScroll=total?Math.round(data.reduce((s,r)=>s+(r.scroll_depth||0),0)/total):0;
+  const retPct=total?Math.round(data.filter(r=>r.is_returning).length/total*100):0;
+  let tc=0,ts=0,tq=0;
+  data.forEach(r=>{
+    if(Array.isArray(r.clicks))tc+=r.clicks.length;
+    if(Array.isArray(r.sections_seen))ts+=r.sections_seen.length;
+    if(Array.isArray(r.search_queries))tq+=r.search_queries.length;
+  });
+  const mob=total?Math.round(data.filter(r=>r.device==='Mobile').length/total*100):0;
+
+  document.getElementById('s-visits').textContent=total;
+  document.getElementById('s-avgtime').textContent=avgActive+'m';
+  document.getElementById('s-scroll').textContent=avgScroll+'%';
+  document.getElementById('s-returning').textContent=retPct+'%';
+  document.getElementById('s-mobile').textContent=mob+'%';
+  document.getElementById('s-clicks').textContent=tc;
+  document.getElementById('s-sections').textContent=ts;
+  document.getElementById('s-searches').textContent=tq;
+
+  renderClicks(data);
+  renderSections(data);
+  renderBreakdown('device-chart',data,'device','blue');
+  renderBreakdown('browser-chart',data,'browser','purple');
+  renderBreakdown('network-chart',data,'network_speed','green');
+  renderBreakdown('os-chart',data,'os','orange');
+  renderBreakdown('theme-chart',data,'theme_used','purple');
+  renderBreakdown('screen-chart',data,'screen_size','red');
+  renderBreakdown('page-chart',data,'page','teal');
+  renderBreakdown('referrer-chart',data,'referrer','blue');
+  renderBreakdown('lang-chart',data,'language','green');
+  renderHours(data);
+  renderSearches(data);
+  renderNewRet(data);
+  renderActiveTime(data);
+  renderRecent(data);
+}
+
+function renderClicks(data){
+  const counts={};
+  data.forEach(r=>{
+    if(!Array.isArray(r.clicks))return;
+    r.clicks.forEach(c=>{const l=(c.label||'unknown').trim();counts[l]=(counts[l]||0)+1;});
+  });
+  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  if(!sorted.length){document.getElementById('clicks-chart').innerHTML='<div class="empty">No clicks yet — students need to visit first!</div>';return;}
+  const max=sorted[0][1];
+  document.getElementById('clicks-chart').innerHTML=sorted.map(([l,c])=>`
+    <div class="bar-item">
+      <div class="bar-label"><span title="${l}">${l}</span><span>${c}</span></div>
+      <div class="bar-track"><div class="bar-fill blue" style="width:${(c/max*100).toFixed(1)}%"></div></div>
+    </div>`).join('');
+}
+
+function renderSections(data){
+  const times={},visits={};
+  data.forEach(r=>{
+    if(!Array.isArray(r.sections_seen))return;
+    r.sections_seen.forEach(s=>{
+      times[s.id]=(times[s.id]||0)+(s.time_seconds||0);
+      visits[s.id]=(visits[s.id]||0)+1;
+    });
+  });
+  const sorted=Object.entries(visits).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  if(!sorted.length){document.getElementById('sections-chart').innerHTML='<div class="empty">No section data yet</div>';return;}
+  const mx=sorted[0][1];
+  document.getElementById('sections-chart').innerHTML=sorted.map(([id,count])=>{
+    const avg=Math.round((times[id]||0)/count);
+    return `<div class="section-item">
+      <div class="section-name">#${id}</div>
+      <div class="section-bar"><div class="section-bar-fill" style="width:${(count/mx*100).toFixed(1)}%"></div></div>
+      <div class="section-time">${avg}s avg</div>
+    </div>`;
+  }).join('');
+}
+
+function renderBreakdown(elId,data,field,color){
+  const counts={};
+  data.forEach(r=>{const v=(r[field]||'Unknown').toString().trim()||'Unknown';counts[v]=(counts[v]||0)+1;});
+  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  if(!sorted.length){document.getElementById(elId).innerHTML='<div class="empty">No data yet</div>';return;}
+  const total=sorted.reduce((s,[,v])=>s+v,0);
+  const max=sorted[0][1];
+  document.getElementById(elId).innerHTML=sorted.slice(0,6).map(([l,c])=>`
+    <div class="bar-item">
+      <div class="bar-label"><span title="${l}">${l}</span><span>${Math.round(c/total*100)}%</span></div>
+      <div class="bar-track"><div class="bar-fill ${color}" style="width:${(c/max*100).toFixed(1)}%"></div></div>
+    </div>`).join('');
+}
+
+function renderHours(data){
+  const h=Array(24).fill(0);
+  data.forEach(r=>{if(r.timestamp)h[new Date(r.timestamp).getHours()]++;});
+  const max=Math.max(...h,1);
+  const bars=h.map((count,i)=>{
+    const pct=Math.max((count/max*100).toFixed(1),2);
+    const lbl=i===0?'12am':i===12?'12pm':i<12?i+'am':(i-12)+'pm';
+    return `<div class="hour-bar" style="height:${pct}%"><div class="tip">${lbl}: ${count}</div></div>`;
+  }).join('');
+  document.getElementById('hour-chart-wrap').innerHTML=`
+    <div class="hour-chart">${bars}</div>
+    <div class="hour-labels"><span>12am</span><span>6am</span><span>12pm</span><span>6pm</span><span>11pm</span></div>`;
+}
+
+function renderSearches(data){
+  const counts={};
+  data.forEach(r=>{
+    if(!Array.isArray(r.search_queries))return;
+    r.search_queries.forEach(q=>{const k=q.toLowerCase().trim();if(k)counts[k]=(counts[k]||0)+1;});
+  });
+  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  if(!sorted.length){document.getElementById('search-chart').innerHTML='<div class="empty">No searches yet</div>';return;}
+  const max=sorted[0][1];
+  document.getElementById('search-chart').innerHTML=sorted.map(([q,c])=>`
+    <div class="bar-item">
+      <div class="bar-label"><span>"${q}"</span><span>${c}x</span></div>
+      <div class="bar-track"><div class="bar-fill green" style="width:${(c/max*100).toFixed(1)}%"></div></div>
+    </div>`).join('');
+}
+
+function renderNewRet(data){
+  const total=data.length;
+  const ret=data.filter(r=>r.is_returning).length;
+  const nw=total-ret;
+  document.getElementById('newret-chart').innerHTML=`
+    <div class="big-split">
+      <div class="big-num-box"><div class="big-num blue">${nw}</div><div class="big-sub">New Visitors</div></div>
+      <div class="big-num-box"><div class="big-num green">${ret}</div><div class="big-sub">Returning</div></div>
+    </div>
+    <div style="margin-top:14px">
+      <div class="bar-label"><span>New</span><span>${total?Math.round(nw/total*100):0}%</span></div>
+      <div class="bar-track" style="height:12px;margin-bottom:8px"><div class="bar-fill blue" style="width:${total?Math.round(nw/total*100):0}%"></div></div>
+      <div class="bar-label"><span>Returning</span><span>${total?Math.round(ret/total*100):0}%</span></div>
+      <div class="bar-track" style="height:12px"><div class="bar-fill green" style="width:${total?Math.round(ret/total*100):0}%"></div></div>
+    </div>`;
+}
+
+function renderActiveTime(data){
+  const total=data.length||1;
+  const avgA=Math.round(data.reduce((s,r)=>s+(r.active_time_seconds||0),0)/total);
+  const avgT=Math.round(data.reduce((s,r)=>s+(r.total_time_seconds||0),0)/total);
+  const fmt=s=>s>=60?Math.floor(s/60)+'m '+(s%60)+'s':s+'s';
+  document.getElementById('activetime-chart').innerHTML=`
+    <div class="big-split">
+      <div class="big-num-box"><div class="big-num purple">${fmt(avgA)}</div><div class="big-sub">Avg Active Time</div></div>
+      <div class="big-num-box"><div class="big-num orange">${fmt(avgT)}</div><div class="big-sub">Avg Total Time</div></div>
+    </div>
+    <div style="margin-top:14px;font-size:.8rem;color:var(--text-muted);text-align:center;padding-top:8px;border-top:1px solid var(--border)">
+      Active = tab was visible + student was interacting
+    </div>`;
+}
+
+function renderRecent(data){
+  const recent=data.slice(0,20);
+  if(!recent.length){document.getElementById('recent-table').innerHTML='<div class="empty">No visits yet — share your website!</div>';return;}
+  document.getElementById('recent-table').innerHTML=`<div style="overflow-x:auto">
+    <table class="data-table">
+      <thead><tr><th>Time</th><th>Page</th><th>Device</th><th>Browser</th><th>OS</th><th>Active</th><th>Scroll</th><th>Clicks</th><th>Type</th><th>From</th></tr></thead>
+      <tbody>${recent.map(r=>`<tr>
+        <td>${fTime(r.timestamp)}</td>
+        <td>${r.page||'—'}</td>
+        <td>${r.device||'—'}</td>
+        <td>${r.browser||'—'}</td>
+        <td>${r.os||'—'}</td>
+        <td>${r.active_time_seconds?Math.round(r.active_time_seconds/60*10)/10+'m':'—'}</td>
+        <td>${r.scroll_depth?r.scroll_depth+'%':'—'}</td>
+        <td>${Array.isArray(r.clicks)?r.clicks.length:0}</td>
+        <td>${r.is_returning?'🔄 Return':'🆕 New'}</td>
+        <td>${r.referrer||'Direct'}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>`;
+}
+
+function fTime(iso){
+  if(!iso)return '—';
+  return new Date(iso).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+}
+</script>
+</body>
+</html>
