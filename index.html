@@ -3,590 +3,2089 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KES Updates - Admin Dashboard</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<title>KES Updates | Student Portal</title>
+<meta name="description" content="KES Updates - Student portal for notices, academic info, fees, cutoff, question papers, ERP and library services.">
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-H7KVLBY669"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-H7KVLBY669');
+</script>
+
+<meta property="og:title" content="KES Updates | Student Portal">
+<meta property="og:description" content="Notices, fees, cutoff, ERP, library and more — all in one place for KES students.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://kesupdatess.github.io/kes-Updatess/">
+<meta property="og:image" content="https://kesupdatess.github.io/kes-Updatess/preview.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Supabase Analytics Tracker -->
+<script src="analytics-tracker.js"></script>
+
 <style>
+:root {
+  --primary: #2563eb;
+  --primary-dark: #1e40af;
+  --primary-light: #dbeafe;
+  --primary-bg: #eff6ff;
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --text: #0f172a;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --border-hover: #cbd5e1;
+  --shadow: 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+  --shadow-hover: 0 8px 24px rgba(0,0,0,0.08);
+  --success: #059669;
+  --danger: #dc2626;
+  --warning: #d97706;
+  --radius: 14px;
+  --radius-sm: 10px;
+}
+
+body.dark {
+  --primary: #60a5fa;
+  --primary-dark: #93c5fd;
+  --primary-light: #1e3a8a;
+  --primary-bg: #1e293b;
+  --bg: #0f172a;
+  --card: #1e293b;
+  --text: #f1f5f9;
+  --text-muted: #94a3b8;
+  --border: #334155;
+  --border-hover: #475569;
+  --shadow: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+  --shadow-hover: 0 8px 24px rgba(0,0,0,0.5);
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: #f5f5f5;
-  padding: 20px;
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.6;
+  transition: background 0.25s, color 0.25s;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  padding-bottom: 90px;
 }
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 20% 10%, rgba(37,99,235,0.04) 0%, transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(37,99,235,0.03) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body.dark::before {
+  background-image: 
+    radial-gradient(circle at 20% 10%, rgba(96,165,250,0.06) 0%, transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(96,165,250,0.04) 0%, transparent 40%);
+}
+
 .container {
-  max-width: 1200px;
+  max-width: 760px;
   margin: 0 auto;
+  padding: 0 16px 40px;
+  position: relative;
+  z-index: 1;
 }
-h1 {
+
+.top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  background: color-mix(in srgb, var(--card) 85%, transparent);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+}
+
+.top-bar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.top-bar-brand span:first-child { font-size: 1.3rem; }
+
+.top-bar-actions { display: flex; gap: 6px; align-items: center; }
+
+.icon-btn {
+  width: 38px;
+  height: 38px;
+  background: var(--primary-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--text);
+  transition: all 0.15s;
+}
+
+.icon-btn:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.page-header {
+  margin-top: 72px;
+  padding: 24px 0;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
   margin-bottom: 20px;
-  color: #333;
 }
-.stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 15px;
-  margin-bottom: 30px;
+
+.page-header .logo { font-size: 2.5rem; margin-bottom: 8px; display: inline-block; }
+.page-header h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 4px; }
+.page-header p { color: var(--text-muted); font-size: 0.88rem; }
+.page-header .instagram-btn { margin-top: 12px; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+  white-space: nowrap;
 }
-.stat-card {
-  background: white;
+
+.btn:hover { transform: translateY(-1px); }
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-outline { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+.btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+.btn-full { width: 100%; padding: 12px; }
+.btn-success { background: var(--success); color: white; }
+.btn-danger { background: var(--danger); color: white; }
+.btn-sm { padding: 7px 14px; font-size: 0.8rem; }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+  transition: all 0.2s;
 }
-.stat-card h3 {
-  font-size: 14px;
-  color: #666;
+
+.card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-md);
+}
+
+.card h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.card p { color: var(--text-muted); font-size: 0.88rem; margin: 8px 0; }
+
+.card-featured {
+  border-left: 3px solid var(--primary);
+  background: linear-gradient(135deg, var(--card), var(--primary-bg));
+}
+
+.notice-college-section {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px dashed var(--border);
+}
+
+.notice-college-section:last-of-type {
+  border-bottom: none;
+  margin-bottom: 12px;
+  padding-bottom: 0;
+}
+
+.notice-college-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.notice-college-header .college-icon { font-size: 1.3rem; }
+.notice-college-header h3 { font-size: 0.98rem; font-weight: 700; color: var(--text); }
+
+.kes-live-list { list-style: none; margin-bottom: 14px; }
+.kes-live-item {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: baseline;
+    gap: 15px;
+    transition: background 0.2s;
+}
+.kes-live-item:last-child { border-bottom: none; }
+.kes-live-item:hover { background: var(--primary-bg); margin: 0 -10px; padding-left: 10px; padding-right: 10px; border-radius: 6px; }
+.kes-live-date {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    min-width: 100px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+.kes-live-title a {
+    color: var(--primary-dark);
+    text-decoration: none;
+    font-size: 0.92rem;
+    font-weight: 600;
+    line-height: 1.4;
+    transition: color 0.2s;
+}
+.kes-live-title a:hover { color: var(--primary); text-decoration: underline; }
+.kes-loading { text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.85rem; }
+
+.notice-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  margin-bottom: 10px;
+  transition: all 0.2s;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.notice-card:hover {
+  border-color: var(--primary);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.notice-card.pinned {
+  border-left: 3px solid var(--warning);
+  background: linear-gradient(135deg, var(--card), rgba(217, 119, 6, 0.05));
+}
+
+.notice-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.notice-category {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 99px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cat-admission { background: var(--primary-bg); color: var(--primary); }
+.cat-exam { background: rgba(220, 38, 38, 0.1); color: var(--danger); }
+.cat-event { background: rgba(5, 150, 105, 0.1); color: var(--success); }
+.cat-fees { background: rgba(217, 119, 6, 0.1); color: var(--warning); }
+.cat-general { background: var(--primary-bg); color: var(--text-muted); }
+.cat-announcement { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+.cat-holiday { background: rgba(249, 115, 22, 0.1); color: #f97316; }
+.cat-result { background: rgba(5, 150, 105, 0.1); color: var(--success); }
+
+.notice-date { font-size: 0.72rem; color: var(--text-muted); }
+.notice-title { font-size: 0.95rem; font-weight: 700; line-height: 1.4; margin-bottom: 6px; }
+.notice-desc { font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 8px; }
+
+.notice-pinned-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(217, 119, 6, 0.1);
+  color: var(--warning);
+  padding: 3px 8px;
+  border-radius: 99px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   margin-bottom: 8px;
 }
-.stat-card .value {
-  font-size: 32px;
-  font-weight: bold;
-  color: #2563eb;
-}
-.section {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  margin-bottom: 20px;
-}
-.section h2 {
-  margin-bottom: 15px;
-  color: #333;
-  font-size: 18px;
-}
-table {
+
+.notice-img {
   width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  margin-bottom: 10px;
 }
-th, td {
-  padding: 10px;
-  text-align: left;
-  border-bottom: 1px solid #eee;
-}
-th {
-  background: #f9f9f9;
+
+.notice-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
   font-weight: 600;
-  color: #666;
+  color: var(--primary);
+  text-decoration: none;
+  transition: gap 0.2s;
 }
-tr:hover {
-  background: #f9f9f9;
+
+.notice-link-btn:hover { gap: 10px; }
+
+.view-all-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 18px;
+  background: var(--primary);
+  color: white;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: all 0.2s;
+  margin-top: 14px;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
 }
-.chart-container {
+
+.view-all-btn:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+}
+
+.view-all-btn .arrow { transition: transform 0.2s; }
+.view-all-btn:hover .arrow { transform: translateX(4px); }
+
+.live-badge {
+  background: var(--danger);
+  color: white;
+  font-size: 0.62rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 50px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.live-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: white;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.countdown-card {
+  background: linear-gradient(135deg, var(--card), var(--primary-bg));
+  border: 1px solid var(--primary);
   position: relative;
-  height: 300px;
-  margin-top: 15px;
+  overflow: hidden;
 }
-.btn {
-  padding: 10px 20px;
-  background: #2563eb;
+
+.countdown-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--danger));
+}
+
+.countdown-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.countdown-badge {
+  background: var(--danger);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.countdown-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: white;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+.countdown-title { font-size: 1rem; font-weight: 700; }
+.countdown-subtitle { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px; }
+
+.countdown-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.countdown-unit {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 6px;
+  text-align: center;
+}
+
+.countdown-num {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--primary-dark);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.countdown-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-top: 4px;
+  letter-spacing: 0.5px;
+}
+
+.countdown-note {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.countdown-note .highlight {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.event-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--primary-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+}
+
+.event-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  border-radius: 14px 0 0 14px;
+}
+
+.event-item[data-type="exam"]::before { background: var(--danger); }
+.event-item[data-type="vacation"]::before { background: var(--success); }
+.event-item[data-type="event"]::before { background: var(--primary); }
+
+.event-item:hover {
+  transform: translateX(3px);
+  border-color: var(--primary);
+  box-shadow: var(--shadow-md);
+}
+
+.event-date-box {
+  width: 50px;
+  height: 50px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.event-date-box .month {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+}
+
+.event-date-box .day {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+}
+
+.event-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.event-info .title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text);
+  margin-bottom: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.event-info .meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.event-countdown {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--danger);
+  background: rgba(220,38,38,0.08);
+  padding: 3px 9px;
+  border-radius: 50px;
+  display: inline-block;
+  margin-top: 4px;
+}
+
+.event-countdown.soon {
+  color: var(--warning);
+  background: rgba(217,119,6,0.1);
+}
+
+.event-countdown.far {
+  color: var(--success);
+  background: rgba(5,150,105,0.1);
+}
+
+.event-arrow {
+  color: var(--primary);
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.link-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.link-list a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 14px;
+  background: var(--primary-bg);
+  color: var(--text);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  font-size: 0.88rem;
+  transition: all 0.15s;
+  border: 1px solid transparent;
+}
+
+.link-list a:hover {
+  background: var(--primary);
+  color: white;
+  transform: translateX(2px);
+}
+
+.link-list a .arrow {
+  opacity: 0;
+  transition: all 0.2s;
+  font-size: 0.8rem;
+}
+
+.link-list a:hover .arrow {
+  opacity: 1;
+  transform: translateX(3px);
+}
+
+.erp-features {
+  list-style: none;
+  margin: 14px 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.erp-features li {
+  padding: 11px 18px;
+  font-size: 0.88rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  transition: background 0.15s;
+}
+
+.erp-features li:last-child { border-bottom: none; }
+.erp-features li:nth-child(odd) { background: var(--primary-bg); }
+.erp-features li:hover { background: var(--primary-light); }
+.erp-features li a { color: inherit; text-decoration: none; }
+.erp-features li a:hover { color: var(--primary); }
+
+input, select, textarea {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-family: inherit;
+  background: var(--card);
+  color: var(--text);
+  transition: all 0.15s;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+}
+
+input::placeholder, textarea::placeholder { color: var(--text-muted); }
+
+label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.form-group { margin-bottom: 12px; }
+
+.ticker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.ticker-label {
+  background: var(--danger);
+  color: white;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ticker-label::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: white;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+.ticker-content { overflow: hidden; flex: 1; white-space: nowrap; }
+
+.ticker-text {
+  display: inline-block;
+  animation: scroll 40s linear infinite;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  padding-left: 100%;
+  font-weight: 500;
+}
+
+@keyframes scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+
+.search-wrapper {
+  position: sticky;
+  top: 56px;
+  z-index: 50;
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
+  backdrop-filter: blur(12px);
+  padding: 10px 16px;
+  margin-bottom: 10px;
+}
+
+.search-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  pointer-events: none;
+}
+
+.search-input-wrap input {
+  padding-left: 40px;
+  padding-right: 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+}
+
+.search-suggestions {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  z-index: 10;
+  flex-wrap: wrap;
+  gap: 6px;
+  box-shadow: var(--shadow-md);
+}
+
+.search-suggestions.active { display: flex; }
+
+.search-suggestions span {
+  background: var(--primary-bg);
+  color: var(--primary-dark);
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.search-suggestions span:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.no-results {
+  display: none;
+  text-align: center;
+  padding: 30px 20px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.no-results.active { display: block; }
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.tools-grid-3 { grid-template-columns: repeat(3, 1fr); }
+
+.tool-card {
+  padding: 16px 12px;
+  background: var(--primary-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-align: center;
+  transition: all 0.2s;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.tool-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--primary);
+  box-shadow: var(--shadow-md);
+}
+
+.tool-icon { font-size: 1.6rem; margin-bottom: 6px; display: inline-block; }
+.tool-name { font-weight: 700; font-size: 0.85rem; color: var(--primary-dark); margin-bottom: 4px; }
+.tool-desc { font-size: 0.72rem; color: var(--text-muted); line-height: 1.3; }
+
+.email-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: var(--primary-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-top: 12px;
+}
+
+.email-box .email {
+  font-weight: 600;
+  color: var(--primary-dark);
+  font-size: 0.88rem;
+  word-break: break-all;
+}
+
+.email-actions { display: flex; gap: 6px; }
+
+.instagram-btn {
+  background: linear-gradient(135deg, #E1306C, #C13584, #833AB4) !important;
+  color: white !important;
+  border: none !important;
+}
+
+.instagram-btn:hover { opacity: 0.95; }
+.instagram-icon { width: 16px; height: 16px; }
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -280px;
+  width: 270px;
+  height: 100%;
+  background: var(--card);
+  border-right: 1px solid var(--border);
+  padding: 70px 14px 20px;
+  overflow-y: auto;
+  z-index: 1001;
+  transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.sidebar.active { left: 0; }
+
+.sidebar-header {
+  padding: 0 10px 14px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 10px;
+}
+
+.sidebar-header h3 { font-size: 0.95rem; font-weight: 700; }
+.sidebar-header p { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+
+.sidebar a {
+  color: var(--text);
+  text-decoration: none;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+
+.sidebar a:hover {
+  background: var(--primary-bg);
+  color: var(--primary-dark);
+  transform: translateX(2px);
+}
+
+.sidebar-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 8px 0;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  display: none;
+  z-index: 1000;
+}
+
+.overlay.active { display: block; }
+
+.back-to-top {
+  position: fixed;
+  bottom: 100px;
+  right: 16px;
+  width: 42px;
+  height: 42px;
+  background: var(--primary);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 50%;
   cursor: pointer;
-  font-size: 14px;
-  margin-bottom: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.2s;
+  z-index: 996;
+  box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+  font-size: 18px;
 }
-.btn:hover {
-  background: #1e40af;
-}
-.loading {
+
+.back-to-top.visible { opacity: 1; pointer-events: all; }
+.back-to-top:hover { transform: translateY(-3px); }
+
+footer {
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  padding: 30px 16px;
+  margin-top: 30px;
+  position: relative;
+  z-index: 1;
   text-align: center;
-  padding: 40px;
-  color: #999;
 }
-.error {
-  background: #fee;
-  color: #c33;
-  padding: 15px;
-  border-radius: 6px;
+
+.footer-content { max-width: 760px; margin: 0 auto; }
+
+.footer-top {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
   margin-bottom: 20px;
+}
+
+.footer-brand h3 { font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
+.footer-brand p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; }
+.footer-links h4 { font-size: 0.85rem; font-weight: 700; margin-bottom: 10px; }
+.footer-links ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.footer-links a { color: var(--text-muted); text-decoration: none; font-size: 0.8rem; }
+.footer-links a:hover { color: var(--primary); }
+
+.footer-bottom {
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.toast {
+  position: fixed;
+  bottom: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--text);
+  color: var(--bg);
+  padding: 10px 20px;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  z-index: 2000;
+  animation: toastIn 0.2s;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.whatsapp-btn {
+  background: #25D366 !important;
+  color: white !important;
+}
+
+.scroll-progress {
+  position: fixed;
+  top: 56px;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary), #8b5cf6);
+  z-index: 1100;
+  width: 0%;
+  transition: width 0.1s;
+}
+
+.donation-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: white;
+  padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+  box-shadow: 0 -4px 20px rgba(5, 150, 105, 0.25);
+  z-index: 998;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+.donation-bar-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.donation-bar-content { flex: 1; min-width: 0; }
+
+.donation-bar-title {
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 3px;
+}
+
+.donation-bar-title .tree-icon {
+  font-size: 1.25rem;
+  animation: sway 3s ease-in-out infinite;
+}
+
+@keyframes sway {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+
+.donation-bar-subtitle {
+  font-size: 0.73rem;
+  font-weight: 500;
+  opacity: 0.95;
+  line-height: 1.3;
+}
+
+.donation-bar-btn {
+  background: white;
+  color: #059669;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-decoration: none;
+  transition: all 0.2s;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.donation-bar-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+}
+
+.degree-scrape-divider {
+  text-align: center;
+  padding: 15px 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-top: 1px dashed var(--border);
+  margin: 10px 0;
+  display: none;
+}
+
+@media (max-width: 640px) {
+  body { font-size: 14px; }
+  .page-header h1 { font-size: 1.3rem; }
+  .page-header .logo { font-size: 2rem; }
+  .card { padding: 16px; }
+  .card h2 { font-size: 1rem; }
+  .countdown-num { font-size: 1.25rem; }
+  .tools-grid { grid-template-columns: 1fr; }
+  .tools-grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .footer-top { grid-template-columns: 1fr; gap: 16px; }
+  .back-to-top { bottom: 100px; }
+  
+  .donation-bar { padding: 12px 14px calc(12px + env(safe-area-inset-bottom)); }
+  .donation-bar-inner { flex-direction: column; text-align: center; gap: 10px; }
+  .donation-bar-title { font-size: 0.85rem; justify-content: center; }
+  .donation-bar-subtitle { font-size: 0.7rem; }
+  .donation-bar-btn { width: 100%; justify-content: center; padding: 10px 16px; font-size: 0.82rem; }
+  
+  .view-all-btn { font-size: 0.85rem; padding: 12px 14px; }
+  .countdown-note { flex-direction: column; align-items: flex-start; }
+  .countdown-note .btn-view-all { width: 100%; justify-content: center; }
+}
+
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
 }
 </style>
 </head>
+
 <body>
 
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<div class="top-bar">
+  <div class="top-bar-brand">
+    <span>🎓</span>
+    <span>KES Updates</span>
+  </div>
+  <div class="top-bar-actions">
+    <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="Toggle theme">🌙</button>
+    <button class="icon-btn" onclick="toggleMenu()" aria-label="Menu">☰</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h3>🎓 KES Updates</h3>
+    <p>Student Portal Navigation</p>
+  </div>
+  <a href="#notices">📢 Notices</a>
+  <a href="#student">🧑‍🎓 Student Corner</a>
+  <a href="#academic">📚 Academic Info</a>
+  <a href="#featured-event">⏰ Featured Event</a>
+  <a href="#upcoming-events">📅 Upcoming Events</a>
+  <div class="sidebar-divider"></div>
+  <a href="#papers">📄 Question Papers</a>
+  <a href="#erp">💳 ERP Portal</a>
+  <a href="#library">📚 Library</a>
+  <a href="tools.html">🧮 Tools</a>
+  <div class="sidebar-divider"></div>
+  <a href="college.html">🏛️ College Details</a>
+  <a href="events.html">📅 All Events</a>
+  <div class="sidebar-divider"></div>
+  <a href="#collab">🤝 Collaboration</a>
+  <a href="#about">ℹ️ About</a>
+  <a href="#our-policy">📄 Policy</a>
+  <a href="#feedback">💬 Feedback</a>
+</nav>
+
 <div class="container">
-  <h1>📊 KES Updates Analytics Dashboard</h1>
-  
-  <button class="btn" onclick="loadAllData()">🔄 Refresh Data</button>
-  
-  <div id="errorBox"></div>
 
-  <!-- STATS -->
-  <div class="stats">
-    <div class="stat-card">
-      <h3>Total Sessions</h3>
-      <div class="value" id="totalSessions">-</div>
-    </div>
-    <div class="stat-card">
-      <h3>Page Views</h3>
-      <div class="value" id="totalPageViews">-</div>
-    </div>
-    <div class="stat-card">
-      <h3>Total Clicks</h3>
-      <div class="value" id="totalClicks">-</div>
-    </div>
-    <div class="stat-card">
-      <h3>Custom Events</h3>
-      <div class="value" id="totalEvents">-</div>
+  <header class="page-header">
+    <div class="logo">🎓</div>
+    <h1>KES Updates</h1>
+    <p>Independent Student Portal</p>
+    <a class="btn instagram-btn" href="https://instagram.com/kes_updatess" target="_blank" rel="noopener noreferrer">
+      <svg class="instagram-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" stroke-width="2"/>
+        <circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2"/>
+        <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor"/>
+      </svg>
+      Follow Instagram
+    </a>
+  </header>
+
+  <div class="ticker">
+    <span class="ticker-label">LIVE</span>
+    <div class="ticker-content">
+      <span class="ticker-text">📢 Check latest notices • 💳 Pay fees via ERP Portal • 📚 Academic Calendar 2026-27 available • 📄 Previous Year Question Papers • 🤝 Collaborate: kesupdatess@gmail.com</span>
     </div>
   </div>
 
-  <!-- TRAFFIC CHART -->
-  <div class="section">
-    <h2>📈 Traffic (Last 7 Days)</h2>
-    <div class="chart-container">
-      <canvas id="trafficChart"></canvas>
+  <div class="search-wrapper">
+    <div class="search-input-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Search notices, fees, ERP, library..." onfocus="showSuggestions()" autocomplete="off">
+    </div>
+    <div id="searchSuggestions" class="search-suggestions"></div>
+  </div>
+  <p id="noResults" class="no-results">😕 No matching results found.</p>
+
+  <!-- NOTICES SECTION -->
+  <div class="card card-featured searchable" id="notices">
+    <h2>📢 Important Notices</h2>
+    
+    <!-- DEGREE COLLEGE (TOP) -->
+    <div class="notice-college-section">
+      <div class="notice-college-header">
+        <span class="college-icon">🎓</span>
+        <h3>Degree College Notices</h3>
+      </div>
+      
+      <div id="degree-custom-notices"></div>
+      
+      <div id="degree-scrape-divider" class="degree-scrape-divider">
+        🌐 LIVE NOTICES FROM KES WEBSITE
+      </div>
+      
+      <ul id="kes-live-notices" class="kes-live-list">
+        <li class="kes-loading">Fetching latest notices...</li>
+      </ul>
+      
+      <a href="https://kessc.edu.in/notices/" 
+         target="_blank" 
+         rel="noopener noreferrer"
+         class="view-all-btn">
+        <span>🌐</span>
+        <span>View All Degree College Notices</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+
+    <!-- JUNIOR COLLEGE (BOTTOM) -->
+    <div class="notice-college-section">
+      <div class="notice-college-header">
+        <span class="college-icon">🏫</span>
+        <h3>Junior College Notices</h3>
+      </div>
+      <div id="junior-notices"></div>
+      <a href="https://kesjrsanghvi.com/enotices/" 
+         target="_blank" 
+         rel="noopener noreferrer"
+         class="view-all-btn">
+        <span>🌐</span>
+        <span>View All Junior College Notices</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+
+    <a class="btn whatsapp-btn btn-full" href="https://wa.me/?text=Check%20out%20KES%20Updates%3A%20https%3A%2F%2Fkesupdatess.github.io%2Fkes-Updatess%2F" target="_blank" rel="noopener noreferrer" style="margin-top:16px;">📱 Share on WhatsApp</a>
+  </div>
+
+  <!-- STUDENT CORNER -->
+  <div class="card searchable" id="student">
+    <h2>🧑‍🎓 Student Corner</h2>
+    <div class="link-list">
+      <a href="https://forms.gle/USmraK6T7EqH7UU9A" target="_blank" rel="noopener noreferrer">
+        <span>😂 Submit Meme</span>
+        <span class="arrow">→</span>
+      </a>
+      <a href="mailto:kesupdatess@gmail.com?subject=Ask%20Doubt">
+        <span>❓ Ask Doubt / Support</span>
+        <span class="arrow">→</span>
+      </a>
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLSdpkELaLHjghZzWYR6EPYotuRvRDa3yQq3r5y2EHkRqrQOG8g/viewform" target="_blank" rel="noopener noreferrer" style="background:var(--danger);color:white;">
+        <span>🚨 Facing issue in college? Tell us!</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+    <p>Got a doubt, meme, or facing any issue? We're here to help!</p>
+  </div>
+
+  <!-- ACADEMIC INFO -->
+  <div class="card searchable" id="academic">
+    <h2>📚 Academic Info</h2>
+    <div class="link-list">
+      <a href="https://drive.google.com/file/d/1F9UqN7SbvUJEaWOy7jtvoiu1dNkEpqVX/view" target="_blank" rel="noopener noreferrer">
+        <span>📅 Academic Calendar 2026-27</span>
+        <span class="arrow">→</span>
+      </a>
+      <a href="https://drive.google.com/file/d/1vYEIClJD7QRGKD0ANY-XlPPUl-h9RN-f/view" target="_blank" rel="noopener noreferrer">
+        <span>🏫 Junior College Fees Structure</span>
+        <span class="arrow">→</span>
+      </a>
+      <a href="https://drive.google.com/file/d/1VZeVNJ06mvhjIu6u6YeIpQzjxx2GiduN/view" target="_blank" rel="noopener noreferrer">
+        <span>🎓 Degree College Fees Structure</span>
+        <span class="arrow">→</span>
+      </a>
+      <a href="https://drive.google.com/file/d/1QCLLe0cetbMmHujWD_AL95FE70TCJrF5/view" target="_blank" rel="noopener noreferrer">
+        <span>📊 Junior College Cutoff List</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+    <p>All academic documents in one place.</p>
+  </div>
+
+  <div id="featured-event-container"></div>
+
+  <!-- UPCOMING EVENTS -->
+  <div class="card searchable" id="upcoming-events">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+      <h2 style="margin:0;">📅 Upcoming Events</h2>
+      <span class="live-badge">Live</span>
+    </div>
+    <p id="events-subtitle">Loading events...</p>
+    <div class="events-list" id="upcoming-events-list">
+      <div style="text-align:center;padding:20px;color:var(--text-muted);">Loading...</div>
+    </div>
+    <a class="btn btn-primary btn-full" href="events.html">📅 View All Upcoming Events</a>
+  </div>
+
+  <!-- QUESTION PAPERS -->
+  <div class="card searchable" id="papers">
+    <h2>📄 Question Papers</h2>
+    <div class="link-list">
+      <a href="https://kessclibrary.wixsite.com/library/copy-of-question-papers" target="_blank" rel="noopener noreferrer">
+        <span>📝 Previous Year Question Papers</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+    <ul class="erp-features">
+      <li>🏫 <a href="https://kessclibrary.wixsite.com/library/question-paper-junior" target="_blank" rel="noopener noreferrer">Junior Question Papers</a></li>
+      <li>🎓 <a href="https://kessclibrary.wixsite.com/library/question-paper-ug" target="_blank" rel="noopener noreferrer">UG Question Papers</a></li>
+      <li>📘 <a href="https://kessclibrary.wixsite.com/library/question-paper-pg" target="_blank" rel="noopener noreferrer">PG Question Papers</a></li>
+      <li>📗 <a href="https://kessclibrary.wixsite.com/library/copy-of-aicte-pg-question-papers" target="_blank" rel="noopener noreferrer">AICTE UG Question Papers</a></li>
+      <li>📙 <a href="https://kessclibrary.wixsite.com/library/copy-of-ug-question-papers" target="_blank" rel="noopener noreferrer">AICTE PG Question Papers</a></li>
+    </ul>
+    <p>Semester-wise question papers for exam preparation and revision.</p>
+  </div>
+
+  <!-- TOOLS -->
+  <div class="card searchable" id="tools-link">
+    <h2>🧮 Student Tools</h2>
+    <p>Powerful calculators designed for KES students.</p>
+    <div class="tools-grid">
+      <a href="tools.html" class="tool-card">
+        <div class="tool-icon">🧮</div>
+        <div class="tool-name">Attendance Calculator</div>
+        <div class="tool-desc">Check %, track progress</div>
+      </a>
+      <a href="tools.html" class="tool-card">
+        <div class="tool-icon">💰</div>
+        <div class="tool-name">Fees Calculator</div>
+        <div class="tool-desc">Know exact fees instantly</div>
+      </a>
+    </div>
+    <a class="btn btn-primary btn-full" href="tools.html">🚀 Open Student Tools</a>
+  </div>
+
+  <!-- ERP PORTAL -->
+  <div class="card searchable" id="erp">
+    <h2>💳 ERP Portal</h2>
+    <div class="link-list">
+      <a href="https://cimsstudentnewui.mastersofterp.in/" target="_blank" rel="noopener noreferrer">
+        <span>🔗 Open ERP Portal</span>
+        <span class="arrow">→</span>
+      </a>
+      <a href="https://cimsstudentnewui.mastersofterp.in/" target="_blank" rel="noopener noreferrer">
+        <span>🧾 Download Hall Ticket</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+    <ul class="erp-features">
+      <li>💰 <a href="https://cimsstudentnewui.mastersofterp.in/" target="_blank" rel="noopener noreferrer">Pay Fees & Download Receipt</a></li>
+      <li>📊 <a href="https://cimsstudentnewui.mastersofterp.in/" target="_blank" rel="noopener noreferrer">Check Result</a></li>
+      <li>📝 <a href="https://cimsstudentnewui.mastersofterp.in/" target="_blank" rel="noopener noreferrer">Apply for Credit Course</a></li>
+      <li>📋 <a href="https://cimsstudentnewui.mastersofterp.in/" target="_blank" rel="noopener noreferrer">Admission Form</a></li>
+      <li>🎯 <a href="https://cimsstudentnewui.mastersofterp.in/" target="_blank" rel="noopener noreferrer">Apply for ATKT</a></li>
+    </ul>
+    <p>Official ERP system used for all student services — fees, results, registrations and more.</p>
+  </div>
+
+  <!-- LIBRARY -->
+  <div class="card searchable" id="library">
+    <h2>📚 KES Shroff College Library</h2>
+    <div class="link-list">
+      <a href="https://kessclibrary.ourlib.in/" target="_blank" rel="noopener noreferrer">
+        <span>📖 Library Catalogue</span>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+    <p>Books, catalogue search, and academic material.</p>
+  </div>
+
+  <!-- COLLEGE DETAILS -->
+  <div class="card searchable" id="college-details">
+    <h2>🏛️ College Details</h2>
+    <p>Contact info, addresses & locations for all KES buildings.</p>
+    <div class="tools-grid tools-grid-3">
+      <a href="college.html" class="tool-card">
+        <div class="tool-icon">🏫</div>
+        <div class="tool-name">Main Campus</div>
+        <div class="tool-desc">Arts & Commerce</div>
+      </a>
+      <a href="college.html" class="tool-card">
+        <div class="tool-icon">⚖️</div>
+        <div class="tool-name">Annex-1</div>
+        <div class="tool-desc">Law College</div>
+      </a>
+      <a href="college.html" class="tool-card">
+        <div class="tool-icon">🌍</div>
+        <div class="tool-name">Annex-2</div>
+        <div class="tool-desc">International</div>
+      </a>
+    </div>
+    <a class="btn btn-primary btn-full" href="college.html">🏛️ View Full Details</a>
+  </div>
+
+  <!-- COLLABORATION -->
+  <div class="card searchable" id="collab">
+    <h2>🤝 Collaboration</h2>
+    <p>Want to collaborate with KES Updates? Reach out!</p>
+    <div class="email-box">
+      <span class="email">📧 kesupdatess@gmail.com</span>
+      <div class="email-actions">
+        <a class="btn btn-primary btn-sm" href="mailto:kesupdatess@gmail.com?subject=Collaboration%20-%20KES%20Updates">✉️ Mail</a>
+        <button class="btn btn-success btn-sm" onclick="copyEmail()">📋 Copy</button>
+      </div>
     </div>
   </div>
 
-  <!-- DEVICES -->
-  <div class="section">
-    <h2>📱 Device Types</h2>
-    <div class="chart-container">
-      <canvas id="deviceChart"></canvas>
+  <!-- ABOUT -->
+  <div class="card" id="about">
+    <h2>ℹ️ About KES Updates</h2>
+    <p>KES Updates is an independent, student-managed page created to share notices, resources, and fun campus content. We are not an official college page, but our goal is to keep students informed, connected, and entertained 💙.</p>
+    <div style="margin-top:12px;padding:14px;background:var(--primary-bg);border-radius:var(--radius-sm);border:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <span>📧</span>
+        <a href="mailto:kesupdatess@gmail.com" style="color:var(--primary);font-weight:600;text-decoration:none;font-size:0.88rem;">kesupdatess@gmail.com</a>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <span>📸</span>
+        <a href="https://instagram.com/kes_updatess" style="color:var(--primary);font-weight:600;text-decoration:none;font-size:0.88rem;">@kes_updatess</a>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span>🌐</span>
+        <span style="color:var(--text-muted);font-size:0.88rem;">kesupdatess.github.io/kes-Updatess</span>
+      </div>
     </div>
   </div>
 
-  <!-- RECENT SESSIONS -->
-  <div class="section">
-    <h2>👥 Recent Sessions</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Time</th>
-          <th>Device</th>
-          <th>Browser</th>
-          <th>OS</th>
-          <th>Referrer</th>
-        </tr>
-      </thead>
-      <tbody id="sessionsTable">
-        <tr><td colspan="5" class="loading">Loading...</td></tr>
-      </tbody>
-    </table>
+  <!-- POLICY -->
+  <div class="card searchable" id="our-policy">
+    <h2>📄 Policy & Disclaimer</h2>
+    <p>KES Updates operates with full transparency and legal compliance. We are a student-managed platform — not an official college body — sharing information in good faith for students.</p>
+    <a class="btn btn-outline btn-full" href="policy.html" style="margin-top:12px;">📄 Read Full Policy</a>
   </div>
 
-  <!-- TOP PAGES -->
-  <div class="section">
-    <h2>📄 Most Visited Pages</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Page</th>
-          <th>Views</th>
-          <th>Avg Time</th>
-        </tr>
-      </thead>
-      <tbody id="pagesTable">
-        <tr><td colspan="3" class="loading">Loading...</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- TOP CLICKS -->
-  <div class="section">
-    <h2>🖱️ Most Clicked Elements</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Element</th>
-          <th>Text</th>
-          <th>Clicks</th>
-        </tr>
-      </thead>
-      <tbody id="clicksTable">
-        <tr><td colspan="3" class="loading">Loading...</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- EVENTS -->
-  <div class="section">
-    <h2>🎯 Custom Events</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Event</th>
-          <th>Category</th>
-          <th>Label</th>
-          <th>Count</th>
-        </tr>
-      </thead>
-      <tbody id="eventsTable">
-        <tr><td colspan="4" class="loading">Loading...</td></tr>
-      </tbody>
-    </table>
+  <!-- FEEDBACK FORM -->
+  <div class="card searchable" id="feedback">
+    <h2>💬 Feedback Form</h2>
+    <p>Share your thoughts, suggestions, or report issues.</p>
+    <form action="https://formspree.io/f/xaqzreol" method="POST" style="margin-top:12px;">
+      <div class="tools-grid">
+        <div class="form-group">
+          <label for="feedbackName">Your Name</label>
+          <input type="text" id="feedbackName" name="name" placeholder="Your name" required>
+        </div>
+        <div class="form-group">
+          <label for="feedbackEmail">Email</label>
+          <input type="email" id="feedbackEmail" name="email" placeholder="your@email.com" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="feedbackCategory">Category</label>
+        <select id="feedbackCategory" name="category" required>
+          <option value="" disabled selected>Select category</option>
+          <option value="suggestion">💡 Suggestion</option>
+          <option value="bug">🐛 Bug Report</option>
+          <option value="feature">✨ Feature Request</option>
+          <option value="content">📄 Content Update</option>
+          <option value="other">📝 Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="feedbackMessage">Your Message</label>
+        <textarea id="feedbackMessage" name="message" rows="4" placeholder="Tell us what you think..." required></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full">📨 Submit Feedback</button>
+    </form>
   </div>
 
 </div>
 
+<footer>
+  <div class="footer-content">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <h3>🎓 KES Updates</h3>
+        <p>Independent Student Portal for KES Shroff College</p>
+      </div>
+      <div class="footer-links">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="#notices">📢 Notices</a></li>
+          <li><a href="#erp">💳 ERP Portal</a></li>
+          <li><a href="tools.html">🧮 Tools</a></li>
+          <li><a href="#papers">📄 Question Papers</a></li>
+          <li><a href="#library">📚 Library</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2026 KES Updates | Made with 💙 for Students</div>
+    </div>
+  </div>
+</footer>
+
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">↑</button>
+
+<div class="donation-bar">
+  <div class="donation-bar-inner">
+    <div class="donation-bar-content">
+      <div class="donation-bar-title">
+        <span class="tree-icon">🌳</span>
+        PLANT A TREE WITH KES UPDATES
+      </div>
+      <div class="donation-bar-subtitle">
+        🎓 Certificate + Receipt | Join Green Mission
+      </div>
+    </div>
+    <a href="https://kesupdatess.github.io/KES-UPDATESS-FOUNDATION/"
+       target="_blank"
+       rel="noopener noreferrer"
+       class="donation-bar-btn"
+       id="donateBarBtn">
+      💚 Plant Now
+    </a>
+  </div>
+</div>
+
+<script>
+// DONATION BAR TRACKING
+(function() {
+  const btn = document.getElementById('donateBarBtn');
+  if (!btn) return;
+
+  btn.addEventListener('click', function() {
+    const trackData = {
+      event_category: 'Donation',
+      event_label: 'Bottom Bar - Plant Now',
+      page_location: window.location.href,
+      page_path: window.location.pathname,
+      page_title: document.title,
+      source: document.referrer || 'Direct',
+      screen_size: `${window.innerWidth}x${window.innerHeight}`,
+      device_type: /Mobi|Android/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
+      timestamp: new Date().toISOString(),
+      value: 1
+    };
+
+    if (typeof gtag === 'function') {
+      gtag('event', 'donate_bar_click', trackData);
+    }
+
+    try {
+      const key = 'kes_donate_clicks_v1';
+      let history = JSON.parse(localStorage.getItem(key) || '[]');
+      history.push(trackData);
+      if (history.length > 500) history = history.slice(-500);
+      localStorage.setItem(key, JSON.stringify(history));
+    } catch(e) {}
+  });
+})();
+</script>
+
 <script>
 // ═══════════════════════════════════════════════════════
-// SUPABASE CONFIG
+// SUPABASE NOTICES
 // ═══════════════════════════════════════════════════════
-const SUPABASE_URL = 'https://uegdizdnminwhkxcdcle.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVlZ2RpemRubWlud2hreGNkY2xlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwODk2MjgsImV4cCI6MjA5NzY2NTYyOH0.2wiAHbaoNoDva_tRseDAywVMu_6AioCGlVLgoVb0d6s';
+const NOTICES_URL = 'https://jbyctjddlbyddzavmczg.supabase.co';
+const NOTICES_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpieWN0amRkbGJ5ZGR6YXZtY3pnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzNzE2NzYsImV4cCI6MjA5Nzk0NzY3Nn0.klEa0-zSGbHZYA-fYiHYg4ceoL1PQ87gowGEbvVmhqU';
 
-// Create Supabase client
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let allNotices = [];
 
-// ═══════════════════════════════════════════════════════
-// CHARTS
-// ═══════════════════════════════════════════════════════
-let trafficChart, deviceChart;
-
-function initCharts() {
-  // Traffic Chart
-  const trafficCtx = document.getElementById('trafficChart').getContext('2d');
-  trafficChart = new Chart(trafficCtx, {
-    type: 'line',
-    data: {
-      labels: [],
-      datasets: [{
-        label: 'Page Views',
-        data: [],
-        borderColor: '#2563eb',
-        backgroundColor: 'rgba(37, 99, 235, 0.1)',
-        tension: 0.4,
-        fill: true
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false
-    }
-  });
-
-  // Device Chart
-  const deviceCtx = document.getElementById('deviceChart').getContext('2d');
-  deviceChart = new Chart(deviceCtx, {
-    type: 'doughnut',
-    data: {
-      labels: [],
-      datasets: [{
-        data: [],
-        backgroundColor: ['#2563eb', '#059669', '#d97706', '#dc2626']
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false
-    }
-  });
-}
-
-// ═══════════════════════════════════════════════════════
-// LOAD ALL DATA
-// ═══════════════════════════════════════════════════════
-async function loadAllData() {
+async function loadNotices() {
   try {
-    console.log('🔄 Loading analytics data...');
-    
-    // Show loading state
-    document.getElementById('errorBox').innerHTML = '';
-    
-    // Load all data in parallel
-    await Promise.all([
-      loadStats(),
-      loadTrafficChart(),
-      loadDeviceChart(),
-      loadSessionsTable(),
-      loadPagesTable(),
-      loadClicksTable(),
-      loadEventsTable()
-    ]);
-    
-    console.log('✅ All data loaded successfully!');
-  } catch (error) {
-    console.error('❌ Error loading data:', error);
-    document.getElementById('errorBox').innerHTML = `
-      <div class="error">
-        <strong>Error:</strong> ${error.message}
-      </div>
-    `;
-  }
-}
-
-// ═══════════════════════════════════════════════════════
-// LOAD STATS
-// ═══════════════════════════════════════════════════════
-async function loadStats() {
-  console.log('📊 Loading stats...');
-  
-  // Sessions
-  const { data: sessions, error: sessionsError } = await db
-    .from('analytics_sessions')
-    .select('id', { count: 'exact', head: true });
-  
-  if (sessionsError) throw sessionsError;
-  document.getElementById('totalSessions').textContent = sessions?.length || 0;
-  
-  // Page Views
-  const { data: views, error: viewsError } = await db
-    .from('analytics_page_views')
-    .select('id', { count: 'exact', head: true });
-  
-  if (viewsError) throw viewsError;
-  document.getElementById('totalPageViews').textContent = views?.length || 0;
-  
-  // Clicks
-  const { data: clicks, error: clicksError } = await db
-    .from('analytics_clicks')
-    .select('id', { count: 'exact', head: true });
-  
-  if (clicksError) throw clicksError;
-  document.getElementById('totalClicks').textContent = clicks?.length || 0;
-  
-  // Events
-  const { data: events, error: eventsError } = await db
-    .from('analytics_events')
-    .select('id', { count: 'exact', head: true });
-  
-  if (eventsError) throw eventsError;
-  document.getElementById('totalEvents').textContent = events?.length || 0;
-  
-  console.log('✅ Stats loaded');
-}
-
-// ═══════════════════════════════════════════════════════
-// LOAD TRAFFIC CHART
-// ═══════════════════════════════════════════════════════
-async function loadTrafficChart() {
-  console.log('📈 Loading traffic chart...');
-  
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-  
-  const { data, error } = await db
-    .from('analytics_page_views')
-    .select('viewed_at')
-    .gte('viewed_at', sevenDaysAgo.toISOString())
-    .order('viewed_at', { ascending: true });
-  
-  if (error) throw error;
-  
-  // Group by date
-  const dailyCounts = {};
-  data?.forEach(view => {
-    const date = new Date(view.viewed_at).toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric' 
+    const r = await fetch(`${NOTICES_URL}/rest/v1/notices?is_active=eq.true&deleted_at=is.null&order=priority.desc,created_at.desc`, {
+      headers: {'apikey':NOTICES_KEY,'Authorization':'Bearer '+NOTICES_KEY}
     });
-    dailyCounts[date] = (dailyCounts[date] || 0) + 1;
-  });
-  
-  trafficChart.data.labels = Object.keys(dailyCounts);
-  trafficChart.data.datasets[0].data = Object.values(dailyCounts);
-  trafficChart.update();
-  
-  console.log('✅ Traffic chart loaded');
-}
-
-// ═══════════════════════════════════════════════════════
-// LOAD DEVICE CHART
-// ═══════════════════════════════════════════════════════
-async function loadDeviceChart() {
-  console.log('📱 Loading device chart...');
-  
-  const { data, error } = await db
-    .from('analytics_sessions')
-    .select('device_type');
-  
-  if (error) throw error;
-  
-  const counts = {};
-  data?.forEach(s => {
-    const type = s.device_type || 'Unknown';
-    counts[type] = (counts[type] || 0) + 1;
-  });
-  
-  deviceChart.data.labels = Object.keys(counts);
-  deviceChart.data.datasets[0].data = Object.values(counts);
-  deviceChart.update();
-  
-  console.log('✅ Device chart loaded');
-}
-
-// ═══════════════════════════════════════════════════════
-// LOAD SESSIONS TABLE
-// ═══════════════════════════════════════════════════════
-async function loadSessionsTable() {
-  console.log('👥 Loading sessions table...');
-  
-  const { data, error } = await db
-    .from('analytics_sessions')
-    .select('*')
-    .order('started_at', { ascending: false })
-    .limit(20);
-  
-  if (error) throw error;
-  
-  const tbody = document.getElementById('sessionsTable');
-  
-  if (!data || data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" class="loading">No sessions yet</td></tr>';
-    return;
+    if (!r.ok) throw new Error('Load failed');
+    allNotices = await r.json();
+    renderNotices();
+  } catch(e) {
+    console.error('Failed to load notices:', e);
+    document.getElementById('junior-notices').innerHTML = '';
+    document.getElementById('degree-custom-notices').innerHTML = '';
   }
-  
-  tbody.innerHTML = data.map(s => {
-    const referrer = s.referrer ? (s.referrer.includes('http') ? new URL(s.referrer).hostname : s.referrer) : 'Direct';
-    return `
-      <tr>
-        <td>${new Date(s.started_at).toLocaleString()}</td>
-        <td>${s.device_type || 'Unknown'}</td>
-        <td>${s.browser || 'Unknown'}</td>
-        <td>${s.os || 'Unknown'}</td>
-        <td>${referrer}</td>
-      </tr>
-    `;
-  }).join('');
-  
-  console.log('✅ Sessions table loaded');
 }
 
+function renderNotices() {
+  const juniorNotices = allNotices.filter(n => n.college_type === 'junior' || n.college_type === 'both');
+  document.getElementById('junior-notices').innerHTML = juniorNotices.length
+    ? juniorNotices.map(n => renderNoticeCard(n)).join('')
+    : '<p style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:10px;">No Junior College notices added yet.</p>';
+
+  const degreeNotices = allNotices.filter(n => n.college_type === 'degree' || n.college_type === 'both');
+  const degreeCustomContainer = document.getElementById('degree-custom-notices');
+  
+  if (degreeNotices.length > 0) {
+    degreeCustomContainer.innerHTML = degreeNotices.map(n => renderNoticeCard(n, true)).join('');
+    document.getElementById('degree-scrape-divider').style.display = 'block';
+  } else {
+    degreeCustomContainer.innerHTML = '';
+    document.getElementById('degree-scrape-divider').style.display = 'none';
+  }
+}
+
+function renderNoticeCard(n, isDegree = false) {
+  const pinnedBadge = n.is_pinned ? `<div class="notice-pinned-badge">📌 Pinned</div>` : '';
+  const customBadge = isDegree ? `<span style="background:rgba(37,99,235,0.1);color:var(--primary);padding:2px 8px;border-radius:99px;font-size:0.6rem;font-weight:700;margin-left:8px;">⭐ Custom</span>` : '';
+  const image = n.image_url ? `<img src="${n.image_url}" class="notice-img" alt="${escapeHtml(n.title)}" loading="lazy" />` : '';
+  const link = n.link ? `<a href="${n.link}" target="_blank" class="notice-link-btn">Read more →</a>` : '';
+  
+  return `
+    <a href="${n.link || '#'}" ${n.link ? 'target="_blank" rel="noopener noreferrer"' : ''} class="notice-card ${n.is_pinned ? 'pinned' : ''}" ${!n.link ? 'onclick="event.preventDefault()"' : ''}>
+      ${pinnedBadge}
+      ${image}
+      <div class="notice-header">
+        <span class="notice-category cat-${n.category}">${catIcon(n.category)} ${n.category}${customBadge}</span>
+        <span class="notice-date">${fDate(n.created_at)}</span>
+      </div>
+      <div class="notice-title">${escapeHtml(n.title)}</div>
+      ${n.description ? `<div class="notice-desc">${escapeHtml(n.description)}</div>` : ''}
+      ${link}
+    </a>
+  `;
+}
+
+const CAT_ICONS = {admission:'🎓',exam:'📝',event:'📅',fees:'💰',general:'📢',announcement:'📣',holiday:'🎉',result:'🏆'};
+function catIcon(c){return CAT_ICONS[c]||'📢';}
+function fDate(iso){
+  if(!iso) return '';
+  return new Date(iso).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+}
+function escapeHtml(s){
+  return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+loadNotices();
+setInterval(loadNotices, 30000);
+</script>
+
+<script>
 // ═══════════════════════════════════════════════════════
-// LOAD PAGES TABLE
+// LIVE KES NOTICES SCRAPER
 // ═══════════════════════════════════════════════════════
-async function loadPagesTable() {
-  console.log('📄 Loading pages table...');
-  
-  const { data, error } = await db
-    .from('analytics_page_views')
-    .select('path, time_on_page');
-  
-  if (error) throw error;
-  
-  const pages = {};
-  data?.forEach(v => {
-    if (!pages[v.path]) {
-      pages[v.path] = { views: 0, totalTime: 0 };
+const KES_NOTICES_PAGE = 'https://kessc.edu.in/notices/';
+const KES_PROXIES = [
+  'https://corsproxy.io/?',
+  'https://api.allorigins.win/get?url=',
+  'https://api.codetabs.com/v1/proxy?quest='
+];
+
+async function loadKESNotices() {
+  const container = document.getElementById('kes-live-notices');
+  if (!container) return;
+
+  for (const proxy of KES_PROXIES) {
+    try {
+      let response;
+      let htmlText;
+
+      if (proxy.includes('allorigins')) {
+        response = await fetch(proxy + encodeURIComponent(KES_NOTICES_PAGE));
+        if (!response.ok) continue;
+        const data = await response.json();
+        htmlText = data.contents;
+      } else {
+        response = await fetch(proxy + encodeURIComponent(KES_NOTICES_PAGE));
+        if (!response.ok) continue;
+        htmlText = await response.text();
+      }
+
+      if (!htmlText) continue;
+
+      const blockRegex = /<li class="wp-block-post[^>]*>[\s\S]*?<\/li>/g;
+      const blocks = htmlText.match(blockRegex);
+
+      if (!blocks || blocks.length === 0) continue;
+
+      const notices = [];
+      for (let i = 0; i < Math.min(blocks.length, 10); i++) {
+        const block = blocks[i];
+        const linkMatch = block.match(/<a href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/);
+        if (!linkMatch) continue;
+
+        const href = linkMatch[1];
+        const title = linkMatch[2].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+
+        if (!title || title.toLowerCase() === 'notices') continue;
+        notices.push({ title, href });
+      }
+
+      if (notices.length === 0) continue;
+
+      container.innerHTML = notices.map(n => `
+        <li class="kes-live-item">
+          <span class="kes-live-date">New</span>
+          <div class="kes-live-title">
+            <a href="${n.href}" target="_blank" rel="noopener noreferrer">${n.title}</a>
+          </div>
+        </li>
+      `).join('');
+
+      return;
+
+    } catch (err) {
+      console.warn(`KES Proxy failed: ${proxy}`, err.message);
+      continue;
     }
-    pages[v.path].views++;
-    pages[v.path].totalTime += v.time_on_page || 0;
-  });
-  
-  const sorted = Object.entries(pages)
-    .sort((a, b) => b[1].views - a[1].views)
-    .slice(0, 10);
-  
-  const tbody = document.getElementById('pagesTable');
-  
-  if (sorted.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="3" class="loading">No pages yet</td></tr>';
-    return;
   }
-  
-  tbody.innerHTML = sorted.map(([path, stats]) => `
-    <tr>
-      <td>${path}</td>
-      <td>${stats.views}</td>
-      <td>${Math.round(stats.totalTime / stats.views)}s</td>
-    </tr>
-  `).join('');
-  
-  console.log('✅ Pages table loaded');
+
+  container.innerHTML = `<li class="kes-loading">Unable to load notices. <button onclick="loadKESNotices()" style="background:none;border:none;color:var(--primary);cursor:pointer;text-decoration:underline;">Retry</button></li>`;
 }
 
+loadKESNotices();
+setInterval(loadKESNotices, 300000);
+</script>
+
+<script>
 // ═══════════════════════════════════════════════════════
-// LOAD CLICKS TABLE
+// DYNAMIC EVENTS
 // ═══════════════════════════════════════════════════════
-async function loadClicksTable() {
-  console.log('🖱️ Loading clicks table...');
+const EVENTS_URL = 'https://uegdizdnminwhkxcdcle.supabase.co';
+const EVENTS_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVlZ2RpemRubWlud2hreGNkY2xlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwODk2MjgsImV4cCI6MjA5NzY2NTYyOH0.2wiAHbaoNoDva_tRseDAywVMu_6AioCGlVLgoVb0d6s';
+
+let allEvents = [];
+
+async function loadEvents() {
+  try {
+    const r = await fetch(`${EVENTS_URL}/rest/v1/events?status=in.(upcoming,ongoing)&order=start_date.asc`, {
+      headers: {'apikey':EVENTS_KEY,'Authorization':'Bearer '+EVENTS_KEY}
+    });
+    if (!r.ok) throw new Error('Load failed');
+    allEvents = await r.json();
+    renderFeaturedEvent();
+    renderUpcomingEventsList();
+  } catch(e) {
+    console.error('Events load error:', e);
+    document.getElementById('featured-event-container').innerHTML = '';
+    document.getElementById('upcoming-events-list').innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);">Unable to load events</div>';
+  }
+}
+
+function renderFeaturedEvent() {
+  const container = document.getElementById('featured-event-container');
+  const featured = allEvents.find(e => e.is_featured) || allEvents[0];
   
-  const { data, error } = await db
-    .from('analytics_clicks')
-    .select('element_tag, element_text')
-    .limit(500);
-  
-  if (error) throw error;
-  
-  const clicks = {};
-  data?.forEach(c => {
-    const key = `${c.element_tag}|${c.element_text}`;
-    clicks[key] = (clicks[key] || 0) + 1;
-  });
-  
-  const sorted = Object.entries(clicks)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 15);
-  
-  const tbody = document.getElementById('clicksTable');
-  
-  if (sorted.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="3" class="loading">No clicks yet</td></tr>';
+  if (!featured) {
+    container.innerHTML = '';
     return;
   }
   
-  tbody.innerHTML = sorted.map(([key, count]) => {
-    const [tag, text] = key.split('|');
+  const start = new Date(featured.start_date);
+  const end = featured.end_date ? new Date(featured.end_date) : null;
+  const now = new Date();
+  const targetDate = new Date(end || start);
+  const diff = targetDate - now;
+  
+  let badgeText = 'UPCOMING';
+  let badgeBg = 'var(--danger)';
+  
+  if (featured.status === 'ongoing' || (now >= start && end && now <= end)) {
+    badgeText = 'ONGOING';
+    badgeBg = 'var(--warning)';
+  } else if (diff <= 86400000 && diff > 0) {
+    badgeText = 'URGENT';
+    badgeBg = 'var(--danger)';
+  } else if (diff <= 7 * 86400000) {
+    badgeText = 'SOON';
+    badgeBg = 'var(--warning)';
+  }
+  
+  const collegeLabel = featured.college_type === 'degree' ? '🎓 Degree College' : 
+                       featured.college_type === 'junior' ? '🏫 Junior College' : '🎓 Both Colleges';
+  const locationText = featured.location ? ` • 📍 ${featured.location}` : '';
+  
+  let dateText = `📅 Expected: <span class="highlight">${start.toLocaleDateString('en-IN', {day:'numeric', month:'long', year:'numeric'})}</span>`;
+  if (end && start.toDateString() !== end.toDateString()) {
+    dateText = `📅 ${start.toLocaleDateString('en-IN', {day:'numeric', month:'short'})} - ${end.toLocaleDateString('en-IN', {day:'numeric', month:'long', year:'numeric'})}`;
+  }
+  
+  window._featuredTarget = targetDate;
+  window._featuredEvent = featured;
+  
+  const days = Math.max(0, Math.floor(diff / 86400000));
+  const hours = Math.max(0, Math.floor((diff % 86400000) / 3600000));
+  const mins = Math.max(0, Math.floor((diff % 3600000) / 60000));
+  const secs = Math.max(0, Math.floor((diff % 60000) / 1000));
+  
+  container.innerHTML = `
+    <div class="card countdown-card searchable" id="featured-event">
+      <div class="countdown-header">
+        <span class="countdown-badge" id="countdownBadge" style="background:${badgeBg};">${badgeText}</span>
+        <span class="countdown-title">${escapeHtml(featured.title)}</span>
+        ${featured.is_featured ? '<span style="background:rgba(217,119,6,0.1);color:var(--warning);padding:3px 8px;border-radius:99px;font-size:0.68rem;font-weight:700;">⭐ FEATURED</span>' : ''}
+      </div>
+      <p class="countdown-subtitle">${collegeLabel}${locationText}</p>
+      <div class="countdown-grid">
+        <div class="countdown-unit">
+          <div class="countdown-num" id="cd-days">${days}</div>
+          <div class="countdown-label">Days</div>
+        </div>
+        <div class="countdown-unit">
+          <div class="countdown-num" id="cd-hours">${String(hours).padStart(2, '0')}</div>
+          <div class="countdown-label">Hours</div>
+        </div>
+        <div class="countdown-unit">
+          <div class="countdown-num" id="cd-mins">${String(mins).padStart(2, '0')}</div>
+          <div class="countdown-label">Mins</div>
+        </div>
+        <div class="countdown-unit">
+          <div class="countdown-num" id="cd-secs">${String(secs).padStart(2, '0')}</div>
+          <div class="countdown-label">Secs</div>
+        </div>
+      </div>
+      <div class="countdown-note">
+        <span>${dateText} • Timetable subject to change</span>
+        <a href="events.html" class="btn btn-primary btn-sm btn-view-all">📅 View All</a>
+      </div>
+    </div>
+  `;
+}
+
+function renderUpcomingEventsList() {
+  const listContainer = document.getElementById('upcoming-events-list');
+  const subtitle = document.getElementById('events-subtitle');
+  
+  if (!allEvents.length) {
+    listContainer.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);">No upcoming events</div>';
+    subtitle.textContent = 'No events scheduled';
+    return;
+  }
+  
+  subtitle.textContent = `Next ${Math.min(3, allEvents.length)} upcoming events • Academic Calendar 2026-27`;
+  
+  const listEvents = allEvents.slice(0, 3);
+  const now = new Date();
+  
+  listContainer.innerHTML = listEvents.map(e => {
+    const d = new Date(e.start_date);
+    const month = d.toLocaleDateString('en-IN', {month:'short'});
+    const day = d.getDate();
+    
+    let dataType = 'event';
+    if (e.category === 'exam') dataType = 'exam';
+    else if (e.category === 'holiday') dataType = 'vacation';
+    
+    const collegeTag = e.college_type === 'degree' ? '🎓 Degree' : 
+                       e.college_type === 'junior' ? '🏫 Junior' : '🎓 Both';
+    
+    const diff = d - now;
+    let countdownText = '';
+    let countdownClass = 'event-countdown';
+    
+    if (diff <= 0) {
+      countdownText = '✅ Started';
+      countdownClass = 'event-countdown far';
+    } else {
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      if (days <= 1) {
+        countdownText = `🔴 ${hours}h left`;
+      } else if (days <= 7) {
+        countdownText = `⚡ ${days}d left`;
+        countdownClass = 'event-countdown soon';
+      } else {
+        countdownText = `📅 ${days} days left`;
+        countdownClass = 'event-countdown far';
+      }
+    }
+    
     return `
-      <tr>
-        <td>${tag}</td>
-        <td>${text || '-'}</td>
-        <td>${count}</td>
-      </tr>
+      <a href="events.html" class="event-item" data-type="${dataType}">
+        <div class="event-date-box">
+          <span class="month">${month}</span>
+          <span class="day">${day}</span>
+        </div>
+        <div class="event-info">
+          <div class="title">${escapeHtml(e.title)}</div>
+          <div class="meta">${collegeTag} • ${d.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'})}</div>
+          <span class="${countdownClass}">${countdownText}</span>
+        </div>
+        <span class="event-arrow">→</span>
+      </a>
     `;
   }).join('');
-  
-  console.log('✅ Clicks table loaded');
 }
 
-// ═══════════════════════════════════════════════════════
-// LOAD EVENTS TABLE
-// ═══════════════════════════════════════════════════════
-async function loadEventsTable() {
-  console.log('🎯 Loading events table...');
+function updateFeaturedCountdown() {
+  if (!window._featuredTarget) return;
+  const diff = window._featuredTarget - new Date();
   
-  const { data, error } = await db
-    .from('analytics_events')
-    .select('event_name, event_category, event_label');
-  
-  if (error) throw error;
-  
-  const events = {};
-  data?.forEach(e => {
-    const key = `${e.event_name}|${e.event_category}|${e.event_label}`;
-    events[key] = (events[key] || 0) + 1;
-  });
-  
-  const sorted = Object.entries(events)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 20);
-  
-  const tbody = document.getElementById('eventsTable');
-  
-  if (sorted.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="4" class="loading">No events yet</td></tr>';
+  if (diff <= 0) {
+    loadEvents();
     return;
   }
   
-  tbody.innerHTML = sorted.map(([key, count]) => {
-    const [name, category, label] = key.split('|');
-    return `
-      <tr>
-        <td>${name}</td>
-        <td>${category || '-'}</td>
-        <td>${label || '-'}</td>
-        <td>${count}</td>
-      </tr>
-    `;
-  }).join('');
+  const d = Math.floor(diff / 86400000);
+  const h = Math.floor((diff % 86400000) / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  const s = Math.floor((diff % 60000) / 1000);
   
-  console.log('✅ Events table loaded');
+  const daysEl = document.getElementById('cd-days');
+  if (daysEl) {
+    daysEl.textContent = d;
+    document.getElementById('cd-hours').textContent = String(h).padStart(2, '0');
+    document.getElementById('cd-mins').textContent = String(m).padStart(2, '0');
+    document.getElementById('cd-secs').textContent = String(s).padStart(2, '0');
+  }
 }
 
-// ═══════════════════════════════════════════════════════
-// INITIALIZE
-// ═══════════════════════════════════════════════════════
-console.log('🚀 Initializing admin dashboard...');
-initCharts();
-loadAllData();
+setInterval(updateFeaturedCountdown, 1000);
+loadEvents();
+setInterval(loadEvents, 120000);
+</script>
 
-// Auto-refresh every 30 seconds
-setInterval(loadAllData, 30000);
+<script>
+// ═══════════════════════════════════════════════════════
+// OTHER FUNCTIONS
+// ═══════════════════════════════════════════════════════
+function setTheme(mode) {
+  document.body.classList.toggle('dark', mode === 'dark');
+  localStorage.setItem('theme', mode);
+  document.getElementById('themeBtn').textContent = mode === 'dark' ? '☀️' : '🌙';
+}
+
+function toggleTheme() {
+  const isDark = document.body.classList.contains('dark');
+  setTheme(isDark ? 'light' : 'dark');
+  showToast(isDark ? '☀️ Light mode' : '🌙 Dark mode');
+}
+
+function showToast(msg, duration = 1500) {
+  const old = document.querySelector('.toast');
+  if (old) old.remove();
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), duration);
+}
+
+function toggleMenu() {
+  document.getElementById('sidebar').classList.toggle('active');
+  document.getElementById('overlay').classList.toggle('active');
+}
+
+document.querySelectorAll('.sidebar a').forEach(link => {
+  link.addEventListener('click', () => {
+    if (document.getElementById('sidebar').classList.contains('active')) toggleMenu();
+  });
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('sidebar').classList.contains('active')) toggleMenu();
+});
+
+function copyEmail() {
+  navigator.clipboard.writeText('kesupdatess@gmail.com')
+    .then(() => showToast('📋 Email copied!'));
+}
+
+const suggestions = ['Notices', 'ERP', 'Library', 'Fees', 'Papers', 'Academic', 'Cutoff', 'Hall Ticket'];
+
+function showSuggestions() {
+  const box = document.getElementById('searchSuggestions');
+  if (box.childElementCount === 0) {
+    suggestions.forEach(s => {
+      const span = document.createElement('span');
+      span.textContent = s;
+      span.onclick = () => {
+        document.getElementById('searchInput').value = s;
+        doSearch();
+        box.classList.remove('active');
+      };
+      box.appendChild(span);
+    });
+  }
+  box.classList.add('active');
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search-wrapper')) {
+    document.getElementById('searchSuggestions').classList.remove('active');
+  }
+});
+
+function doSearch() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  let any = false;
+  document.querySelectorAll('.searchable').forEach(card => {
+    const match = !q || card.innerText.toLowerCase().includes(q);
+    card.style.display = match ? '' : 'none';
+    if (match) any = true;
+  });
+  document.getElementById('noResults').classList.toggle('active', q.length > 0 && !any);
+}
+
+document.getElementById('searchInput').addEventListener('input', doSearch);
+
+window.addEventListener('scroll', () => {
+  const scrolled = window.scrollY;
+  const total = document.documentElement.scrollHeight - window.innerHeight;
+  document.getElementById('scrollProgress').style.width = ((scrolled / total) * 100) + '%';
+  document.getElementById('backToTop').classList.toggle('visible', scrolled > 300);
+});
+
+window.addEventListener('load', () => {
+  setTheme(localStorage.getItem('theme') || 'light');
+});
+
+document.addEventListener('click', e => {
+  const link = e.target.closest('a');
+  if (!link || typeof gtag !== 'function') return;
+  gtag('event', 'link_click', {
+    link_text: link.innerText.trim().substring(0, 50) || link.getAttribute('href'),
+    link_url: link.getAttribute('href'),
+    page_location: window.location.href
+  });
+});
 </script>
 
 </body>
